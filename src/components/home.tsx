@@ -1,5 +1,5 @@
 import { useEffect, useState, useReducer } from "react";
-import { getAuth, signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GithubAuthProvider, signOut } from "firebase/auth";
 import { useFetchProfileQuery, profileSlice } from "./profile/profile-api-slice";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from "./app/store";
@@ -16,6 +16,8 @@ export interface HomepageProps {
 
  
 const Homepage: React.FunctionComponent<HomepageProps> = () => {
+
+  const auth = getAuth();
 
     const navigate = useNavigate();
 
@@ -39,7 +41,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
       dispatch(
         profileSlice.endpoints.fetchProfile.initiate('Username')
       )
-      setRefetch(!fetch)
+      setRefetch(!refetchData)
     }
 
     const getRepoProfile = () => {
@@ -89,9 +91,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
           refetch()
           fetchRepos()
           setLoading(false)
-
         }, 2000)
-        console.log(data)
         // //setProfileData(data)
     }, [tokenCode, refetchData])
 
@@ -102,15 +102,41 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
 
    if(loading){
        return(
-           <div>Is loading</div>
+          <div className="bg-gradient-to-r from-gray-300 to-slate-700 h-screen">
+             <p className=" font-bold text-4xl flex justify-center pt-72">Loading.....</p>
+          </div>
        )
+   }
+
+
+   if(!auth.currentUser){
+     return(
+       <div className='flex justify-center border-2 mx-5 md:mx-40 mt-10'>
+         <div className="py-5">
+          <p className="text-center text-2xl font-semibold text-gray-700">Welcome to the github user repo application</p>
+          <p className="mt-10 text-lg font-semibold text-gray-500">Autenticate by clicking login below to get users repository</p>
+          <button className="mt-10 w-full bg-gray-200 shawdow-2xl font-semibold text-lg py-2 rounded-xl" onClick={getRepoProfile}>LogIn</button>
+         </div>
+       </div>
+     )
+   }
+
+   const signOutProfile = () => {
+     setLoading(true)
+    signOut(auth).then(() => {
+      // Sign-out successful.
+    }).catch((error) => {
+      // An error happened.
+    });
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000)
    }
    
     return ( 
-    <div>
-        <button onClick={getRepoProfile}>Submit</button>
+    <div className="md:mx-40 pt-10">
         {data ? 
-        <div className="flex flex-row md:mx-40">
+        <div className="flex flex-row">
           <div className=" basis-1/4 mr-7">
               <img  src={data.avatar_url} alt={data.name} className='rounded-full md:h-74'/>
               <p className="text-2xl font-semibold mt-5">{data.name}</p>
@@ -127,15 +153,18 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
               <p className="mt-2 text-sm">{data.blog}</p>
           </div>
           <div className="basis-3/4">
+            <div className="flex justify-end mb-5">
+              <button className="text-right px-5 py-1 rounded-xl text-xl bg-gray-200 shadow-2xl" onClick={signOutProfile}>SignOut</button>
+            </div>
             {userRepo.map((repo:any) => {
               return(
-                <div key={repo.id} className='border-t-2 py-5 w-full'>
+                <div key={repo.id} className='border-t-2 py-5'>
                   <p className="text-blue-600 font-semibold text-xl">{repo.name}</p>
                   <p>{repo.description}</p>
-                  <div className="flex">
+                  <div className="flex flex-wrap">
                     {repo.topics.map((topic:any) => {
                       return(
-                        <div className="m-2 text-blue-600 bg-sky-100 rounded-xl text-sm px-2 py-1">
+                        <div className="mr-2 mt-7 text-blue-600 bg-sky-100 rounded-xl text-sm px-2 py-1">
                           <p>{topic}</p>
                         </div>
                       )
