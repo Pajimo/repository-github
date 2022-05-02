@@ -75,7 +75,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     }
 
     const fetchRepos = async() => {
-      const res = await fetch("https://api.github.com/users/Pajimo/repos")
+      const res = await fetch("https://api.github.com/users/Pajimo/repos?page=1&per_page=20")
       const data = await res.json()
       setUserRepo(data)
     }
@@ -132,16 +132,27 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
       setLoading(false)
     }, 2000)
    }
+
+   console.log(userRepo.sort(function(a: any, b: any){
+    // Turn your strings into dates, and then subtract them
+    // to get a value that is either negative, positive, or zero.
+    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+  }))
+
    
     return ( 
-    <div className="md:mx-40 pt-10">
+    <div className="">
+      <div className="bg-gray-800 mx-0 py-3 flex justify-end">
+        <button className="text-white py-1 text-xl px-12" onClick={signOutProfile}>SignOut</button>
+      </div>
+      <div className="md:mx-40 pt-10">
         {data ? 
         <div className="flex flex-row">
           <div className=" basis-1/4 mr-7">
               <img  src={data.avatar_url} alt={data.name} className='rounded-full md:h-74'/>
               <p className="text-2xl font-semibold mt-5">{data.name}</p>
-              <p className="text-2xl font-light mt-1">{data.login}</p>
-              <p className="mt-5">{data.bio}</p>
+              <p className="text-xl font-light">{data.login}</p>
+              <p className="mt-3">{data.bio}</p>
               <button className="w-full bg-gray-100 shadow-2xl mt-5 py-1 font-semibold border-2 border-gray-200">Edit Profile</button>
               <div className="flex text-sm mt-5">
                 <p className="mr-2"><span className="font-semibold">{data.followers}</span> followers</p>
@@ -153,29 +164,40 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
               <p className="mt-2 text-sm">{data.blog}</p>
           </div>
           <div className="basis-3/4">
-            <div className="flex justify-end mb-5">
-              <button className="text-right px-5 py-1 rounded-xl text-xl bg-gray-200 shadow-2xl" onClick={signOutProfile}>SignOut</button>
+            <div className="mb-5">
+              <p className=" pb-3 mb-3 border-b-2 font-semibold ">Repositories {userRepo.length}</p>
             </div>
+            <input placeholder="Find a repository.... " className="border-2 py-1 w-2/3 rounded-lg mb-3 text-sm px-3"/>
             {userRepo.map((repo:any) => {
               return(
-                <div key={repo.id} className='border-t-2 py-5'>
-                  <p className="text-blue-600 font-semibold text-xl">{repo.name}</p>
-                  <p>{repo.description}</p>
-                  <div className="flex flex-wrap">
-                    {repo.topics.map((topic:any) => {
-                      return(
-                        <div className="mr-2 mt-7 text-blue-600 bg-sky-100 rounded-xl text-sm px-2 py-1">
-                          <p>{topic}</p>
-                        </div>
-                      )
-                    })}
+                <div key={repo.id} className='border-t-2 py-5 flex justify-between items-center'>
+                  <div className="">
+                    <p className="text-blue-600 font-semibold text-xl">{repo.name}</p>
+                    <p className="text- text-gray-600">{repo.description}</p>
+                    <div className="flex flex-wrap">
+                      {repo.topics.map((topic:any) => {
+                        return(
+                          <div className="mr-2 mt-7 text-blue-600 bg-sky-100 rounded-xl text-sm px-2 py-1">
+                            <p>{topic}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <p className="mt-3 text-sm font-semibold text-gray-500">{repo.language}</p>
+                  </div>
+                  <div >
+                      <p className="bg-slate-100 py-1 px-10 border-2 border-gray-200 text-sm font-semibold rounded-lg">Star</p>
+                      <p className="border-b-2 border-green-400 pb-5"></p>
+
                   </div>
                 </div>
               )
             })}
           </div>
         </div>
+        
          : ''}
+         </div>
       </div>
      );
 }
