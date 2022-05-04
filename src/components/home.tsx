@@ -75,9 +75,9 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     }
 
     const fetchRepos = async() => {
-      const res = await fetch("https://api.github.com/users/Pajimo/repos?page=1&per_page=20")
-      const data = await res.json()
-      setUserRepo(data)
+      const res = await fetch(`https://api.github.com/users/${data.login}/repos?page=1&per_page=20`)
+      const repoData = await res.json()
+      setUserRepo(repoData)
     }
 
     useEffect(() => {
