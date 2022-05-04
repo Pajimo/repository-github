@@ -68,7 +68,6 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
             const user = result.user;
             dispatch(getUserProfile(token))
             refetch()
-            fetchRepos()
             setLoading(false)
             // ...
           }).catch((error) => {
@@ -102,6 +101,12 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     //     // //setProfileData(data)
     // }, [tokenCode])
 
+
+    useEffect(() => {
+      if(data){
+        fetchRepos()
+      }
+    }, [data])
 
 
 
