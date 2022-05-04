@@ -75,6 +75,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     }
 
     const fetchRepos = async() => {
+      console.log(data.login)
       const res = await fetch(`https://api.github.com/users/${data.login}/repos?page=1&per_page=20`)
       const repoData = await res.json()
       setUserRepo(repoData)
@@ -91,9 +92,9 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
           refetch()
           fetchRepos()
           setLoading(false)
-        }, 2000)
+        }, 1000)
         // //setProfileData(data)
-    }, [tokenCode, refetchData])
+    }, [tokenCode, refetchData, data])
 
     // useEffect(() => {
     //   setProfileData(data)
