@@ -23,9 +23,9 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
 
     const tokenCode3 = (store.getState()).token.value
 
-    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    //const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
     
-    const token1 = useSelector((state: RootState) => state.token.value)
+    //const token1 = useSelector((state: RootState) => state.token.value)
     const dispatch = useDispatch()
 
     const [profileData, setProfileData]: any = useState([])
@@ -35,17 +35,27 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     const [refetchData, setRefetch] = useState(false)
     const [userRepo, setUserRepo] = useState([])
 
-    function handleRefetchTwo() {
-      // has the same effect as `refetch` for the associated query
-      setLoading(true)
-      dispatch(
-        profileSlice.endpoints.fetchProfile.initiate('Username')
-      )
-      setRefetch(!refetchData)
-    }
+    // function handleRefetchTwo() {
+    //   // has the same effect as `refetch` for the associated query
+    //   setLoading(true)
+    //   dispatch(
+    //     profileSlice.endpoints.fetchProfile.initiate('Username')
+    //   )
+    //   setRefetch(!refetchData)
+    // }
 
     const getRepoProfile = () => {
-        setLoading(true)
+        
+    }
+
+    const fetchRepos = async() => {
+      const res = await fetch(`https://api.github.com/users/${data.login}/repos?page=1&per_page=20`)
+      const repoData = await res.json()
+      setUserRepo(repoData)
+    }
+
+    useEffect(() => {
+      setLoading(true)
         const provider = new GithubAuthProvider();
         const auth = getAuth();
         signInWithPopup(auth, provider)
@@ -57,10 +67,9 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
             // The signed-in user info.
             const user = result.user;
             dispatch(getUserProfile(token))
-            
-            setTimeout(() => {
-              handleRefetchTwo()
-            }, 2000)
+            refetch()
+            fetchRepos()
+            setLoading(false)
             // ...
           }).catch((error) => {
             // Handle Errors here.
@@ -72,29 +81,29 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
             const credential = GithubAuthProvider.credentialFromError(error);
             // ...
           });
-    }
+    }, [])
 
-    const fetchRepos = async() => {
-      console.log(data.login)
-      const res = await fetch(`https://api.github.com/users/${data.login}/repos?page=1&per_page=20`)
-      const repoData = await res.json()
-      setUserRepo(repoData)
-    }
+    // useEffect(() => {
+    //     //window.location.reload()
+    //     const tokenCodes3 = (store.getState()).token.value
+    //     //useFetchProfileQuery
+    //     //dispatch(useFetchProfileQuery())
+    //     //setLoading(true)
+    //     setTimeout(() => {
+    //       refetch()
+    //       fetchRepos()
+    //       setLoading(false)
+    //     }, 1000)
+    //     if(userRepo){console.log(userRepo.sort(function(a: any, b: any){
+    //       // Turn your strings into dates, and then subtract them
+    //       // to get a value that is either negative, positive, or zero.
+    //       return Date.parse(b.updated_at) - Date.parse(a.updated_at);
+    //     }))}
+    //     // //setProfileData(data)
+    // }, [tokenCode])
 
-    useEffect(() => {
-        //window.location.reload()
-        const tokenCodes3 = (store.getState()).token.value
-        //useFetchProfileQuery
-        //dispatch(useFetchProfileQuery())
-        //setLoading(true)
-        // dispatch(getUserProfile(token))
-        setTimeout(() => {
-          refetch()
-          fetchRepos()
-          setLoading(false)
-        }, 1000)
-        // //setProfileData(data)
-    }, [tokenCode, refetchData, data])
+
+
 
     // useEffect(() => {
     //   setProfileData(data)
@@ -109,23 +118,11 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
        )
    }
 
-
-   if(!auth.currentUser){
-     return(
-       <div className='flex justify-center border-2 mx-5 md:mx-40 mt-10'>
-         <div className="py-5">
-          <p className="text-center text-2xl font-semibold text-gray-700">Welcome to the github user repo application</p>
-          <p className="mt-10 text-lg font-semibold text-gray-500">Autenticate by clicking login below to get users repository</p>
-          <button className="mt-10 w-full bg-gray-200 shawdow-2xl font-semibold text-lg py-2 rounded-xl" onClick={getRepoProfile}>LogIn</button>
-         </div>
-       </div>
-     )
-   }
-
    const signOutProfile = () => {
      setLoading(true)
     signOut(auth).then(() => {
       // Sign-out successful.
+      navigate('/')
     }).catch((error) => {
       // An error happened.
     });
@@ -134,13 +131,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
     }, 2000)
    }
 
-   console.log(userRepo.sort(function(a: any, b: any){
-    // Turn your strings into dates, and then subtract them
-    // to get a value that is either negative, positive, or zero.
-    return Date.parse(b.updated_at) - Date.parse(a.updated_at);
-  }))
-
-   
+   //console.log(auth.currentUser)
     return ( 
     <div className="">
       <div className="bg-gray-800 mx-0 py-3 flex justify-end">
@@ -169,7 +160,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
               <p className=" pb-3 mb-3 border-b-2 font-semibold ">Repositories {userRepo.length}</p>
             </div>
             <input placeholder="Find a repository.... " className="border-2 py-1 w-2/3 rounded-lg mb-3 text-sm px-3"/>
-            {userRepo.map((repo:any) => {
+            {userRepo ? userRepo.map((repo:any) => {
               return(
                 <div key={repo.id} className='border-t-2 py-5 flex justify-between items-center'>
                   <div className="">
@@ -193,7 +184,7 @@ const Homepage: React.FunctionComponent<HomepageProps> = () => {
                   </div>
                 </div>
               )
-            })}
+            }) : ''}
           </div>
         </div>
         

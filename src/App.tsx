@@ -63,10 +63,11 @@ const App: React.FunctionComponent<AppProps> = (props) => {
   <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/callbackpage" element={<Callback />} />
+          <Route path="/" element={<Callback />} />
+          <Route path="/homepage" element={<Homepage />} />
         </Routes>
       </BrowserRouter>
+      
   </div> );
 }
 
